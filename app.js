@@ -1,167 +1,116 @@
-const inquirer = require("inquirer");
-const fs = require("fs");
-
+const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern");
-const Manager = require("./lib/Manager");
-const util = require("util");
+const inquirer = require("inquirer");
+const path = require("path");
+const fs = require("fs");
 
-const readTemplate = util.promisify(fs.readFile);
-let returnHtml = require("./templates/html");
+const OUTPUT_DIR = path.resolve(__dirname, "output");
+const outputPath = path.join(OUTPUT_DIR, "team.html");
 
-const employees = [];
+const render = require("./lib/htmlRenderer");
 
+const team = {};
 
-// core object for adding, deleting and modifying member details
-function addMember() {
-  inquirer
+console.log('Hi, welcome to Team Generator');
+
+async function addTeamMember() {
+  console.log('Add a team member');
+
+  return inquirer
     .prompt([
       {
-        message: "Enter team member's name",
-        name: "name",
-      },
-      {
-        type: "list",
-        message: "Select team member's role",
-        choices: ["Engineer", "Intern", "Manager"],
-        name: "role",
-      },
-      {
-        message: "Enter team member's id",
-        name: "id",
-      },
-      {
-        message: "Enter team member's email address",
-        name: "email",
+        type: 'list',
+        name: 'memberType',
+        message: 'Select type of team member:',
+        choices: ['Engineer', 'Intern'],
       },
     ])
-    .then(function ({ name, role, id, email }) {
-      let roleInfo = "";
-      if (role === "Engineer") {
-        roleInfo = "GitHub username";
-      } else if (role === "Intern") {
-        roleInfo = "education facility";
-      } else {
-        roleInfo = "contact number";
+    .then((answers) => {
+      switch (answers.memberType) {
+        case 'Engineer': return Engineer.create();
+        case 'Intern': return Intern.create();
+        default:
+          // should not happen but it is hear to make eslint happy
+          return null;
       }
-      inquirer
-        .prompt([
-          {
-            message: `Enter team member's ${roleInfo}`,
-            name: "roleInfo",
-          },
-          {
-            type: "list",
-            message: "Would you like to add more team members?",
-            choices: ["yes", "no"],
-            name: "moreMembers",
-          },
-        ])
-        .then(function ({ roleInfo, moreMembers }) {
-          let newMember;
-          if (role === "Engineer") {
-            newMember = new Engineer(name, id, email, roleInfo);
-          } else if (role === "Intern") {
-            newMember = new Intern(name, id, email, roleInfo);
-          } else {
-            newMember = new Manager(name, id, email, roleInfo);
+    })
+    .then((member) => {
+      team.members.push(member);
+
+      return inquirer
+        .prompt([{
+          type: 'confirm',
+          name: 'addMore',
+          message: 'Add more members?',
+          default: true,
+        }])
+        .then((answers) => (answers.addMore ? addTeamMember() : false));
+    });
+}
+
+// "promise" style without async/await
+function createTeam() {
+  return inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'teamName',
+        message: 'What is the name of the team?',
+        validate: (value) => {
+          if (value.length > 2) {
+            return true;
           }
-          employees.push(newMember);
-          addHtml(newMember).then(function () {
-            if (moreMembers === "yes") {
-              addMember();
-            } else {
-              finishHtml();
-            }
-          });
-        });
+
+          return 'Name is to short (min: 3)';
+        },
+      },
+    ])
+    .then((answers) => {
+      team.name = answers.teamName;
+
+      return Manager.create();
+    })
+    .then((manager) => {
+      team.members = [manager];
+
+      return addTeamMember();
     });
 }
 
-async function getHtmlHeader() {
-  // load the text file html header content
-  const html = await readTemplate("./Assets/html.json");
-
-  fs.writeFile("./output/team.html", html, function (err) {
-    if (err) {
-      console.log(err);
-    }
-  });
-}
-
-function addHtml(member) {
-  return new Promise(function (resolve, reject) {
-
-    // var {name,id,email,school,number} = member;
-  
-     const name = member.name;
-     const id = member.id;
-     const email = member.email;
-     school = member.school;
-     number = member.officeNumber;
-
-    const role = member.getRole(); 
-
-    let data = "";
-    if (role === "Engineer") {
-
-      // return engineer html
-      data = returnHtml("Engineer", name, role, id, email, member.github);
-
-    }
-    else if (role === "Intern") {
-      // return intern html
-      data = returnHtml("Intern", name, role, id, email, school);
-
-    } else {
-      // return manager html
-      data = returnHtml("Manager", name, role, id, email, number);
-    }
-
-    console.log("adding team member");
-    fs.appendFile("./output/team.html", data, function (err) {
+function mkdir(dir) {
+  // Calling fs.mkdir() when path is a directory that exists results in an error only when recursive is false.
+  return new Promise((resolve, reject) => {
+    fs.mkdir(dir, { recursive: true }, (err) => {
       if (err) {
-        return reject(err);
+        reject(err);
+      } else {
+        resolve(dir);
       }
-      return resolve();
     });
   });
 }
 
-// function to retrive and display footer
-function finishHtml() {
-  html = returnHtml("footer");
-  fs.appendFile("./output/team.html", html, function (err) {
-    if (err) {
-      console.log(err);
-    }
+function writeOutput(html) {
+  // console.log(html);
+
+  return new Promise((resolve, reject) => {
+    fs.writeFile(outputPath, html, 'utf8', (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(html);
+      }
+    });
   });
-  console.log("end");
 }
 
-function init() {
-  // console.log(returnHtml());
-
-  getHtmlHeader();
-  addMember();
-}
-
-function promptUser(input, title, theMessage, theDefault) {
-  //console.log(clc.blue("Enter for previous answer : " + theDefault));
-
-  return inquirer.prompt([
-    {
-      type: input,
-      name: title,
-      default: theDefault,
-      message: theMessage,
-    },
-  ]);
-}
-
-
-
-
-
-
-init();
+createTeam()
+  .then(() => mkdir(OUTPUT_DIR))
+  .then(() => writeOutput(render(team.members)))
+  .then(() => {
+    console.log('Done');
+  })
+  .catch((err) => {
+    console.error('Something is wrong', err);
+  });
