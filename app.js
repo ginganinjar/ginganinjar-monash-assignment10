@@ -92,12 +92,13 @@ async function getHtmlHeader() {
 function addHtml(member) {
   return new Promise(function (resolve, reject) {
 
-    const name = member.name;
+    // var {name,id,email,school,number} = member;
   
-    const id = member.id;
-    const email = member.email;
-    school = member.school;
-    number = member.officeNumber;
+     const name = member.name;
+     const id = member.id;
+     const email = member.email;
+     school = member.school;
+     number = member.officeNumber;
 
     const role = member.getRole(); 
 
@@ -144,5 +145,23 @@ function init() {
   getHtmlHeader();
   addMember();
 }
+
+function promptUser(input, title, theMessage, theDefault) {
+  //console.log(clc.blue("Enter for previous answer : " + theDefault));
+
+  return inquirer.prompt([
+    {
+      type: input,
+      name: title,
+      default: theDefault,
+      message: theMessage,
+    },
+  ]);
+}
+
+
+
+
+
 
 init();
