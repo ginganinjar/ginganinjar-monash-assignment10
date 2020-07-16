@@ -14,40 +14,47 @@ const team = {
   members: [],
 };
 
-console.log('Hi, welcome to Team Generator');
+console.log("Hi, welcome to Team Generator");
 
 async function addTeamMember() {
-  console.log('Add a team member');
+  console.log("Add a team member");
 
+  // run inquirer - module must be installed
   const member = await inquirer
     .prompt([
       {
-        type: 'list',
-        name: 'memberType',
-        message: 'Select type of team member:',
-        choices: ['Manager', 'Engineer', 'Intern'],
+        type: "list",
+        name: "memberType",
+        message: "Select type of team member:",
+        choices: ["Manager", "Engineer", "Intern"],
       },
     ])
     .then((answers) => {
       switch (answers.memberType) {
-        case 'Manager': return Manager.create();
-        case 'Engineer': return Engineer.create();
-        case 'Intern': return Intern.create();
+        case "Manager":
+          return Manager.create();
+        case "Engineer":
+          return Engineer.create();
+        case "Intern":
+          return Intern.create();
         default:
           // should not happen but it is here to make eslint happy
           return null;
       }
     });
 
+    // add object to array
   team.members.push(member);
 
   const addMore = await inquirer
-    .prompt([{
-      type: 'confirm',
-      name: 'addMore',
-      message: 'Add more members?',
-      default: true,
-    }])
+    .prompt([
+      {
+        type: "confirm",
+        name: "addMore",
+        message: "Add more members?",
+        default: true,
+      },
+    ])
     .then((answers) => answers.addMore);
 
   if (addMore) {
@@ -57,17 +64,18 @@ async function addTeamMember() {
 
 // "promise" style with async/await
 function createTeam() {
-  return inquirer.prompt([
+  return inquirer
+    .prompt([
       {
-        type: 'input',
-        name: 'teamName',
-        message: 'What is the name of the team?',
+        type: "input",
+        name: "teamName",
+        message: "What is the name of the team?",
         validate: (value) => {
           if (value.length > 2) {
             return true;
           }
 
-          return 'Name is to short (min: 3)';
+          return "Name is to short (min: 3)";
         },
       },
     ])
@@ -88,10 +96,8 @@ function mkdir(dir) {
 }
 
 function writeOutput(html) {
-  // console.log(html);
-
   return new Promise((resolve, reject) => {
-    fs.writeFile(outputPath, html, 'utf8', (err) => {
+    fs.writeFile(outputPath, html, "utf8", (err) => {
       if (err) {
         reject(err);
       } else {
@@ -103,18 +109,20 @@ function writeOutput(html) {
 
 (async () => {
   try {
+    // create a nice teamname
     team.name = await createTeam();
 
-    // at least one manager is required
-    team.members.push(await Manager.create());
-
+    // add team members
     await addTeamMember();
 
+    // check dir structure and create if it is not there.
     await mkdir(OUTPUT_DIR);
+
+    // render file and save results
     await writeOutput(render(team.members));
 
-    console.log('Done');
+    console.log("Finished writig file : " + outputPath);
   } catch (err) {
-    console.error('Something is wrong', err);
-  };
+    console.error("Something is wrong", err);
+  }
 })();
