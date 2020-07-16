@@ -10,14 +10,16 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-const team = {};
+const team = {
+  members: [],
+};
 
 console.log('Hi, welcome to Team Generator');
 
 async function addTeamMember() {
   console.log('Add a team member');
 
-  return inquirer
+  const member = await inquirer
     .prompt([
       {
         type: 'list',
@@ -35,23 +37,26 @@ async function addTeamMember() {
           // should not happen but it is hear to make eslint happy
           return null;
       }
-    })
-    .then((member) => {
-      team.members.push(member);
-
-      return inquirer
-        .prompt([{
-          type: 'confirm',
-          name: 'addMore',
-          message: 'Add more members?',
-          default: true,
-        }])
-        .then((answers) => (answers.addMore ? addTeamMember() : false));
     });
+
+  team.members.push(member);
+
+  const addMore = await inquirer
+    .prompt([{
+      type: 'confirm',
+      name: 'addMore',
+      message: 'Add more members?',
+      default: true,
+    }])
+    .then((answers) => answers.addMore);
+
+  if (addMore) {
+    await addTeamMember();
+  }
 }
 
 // "promise" style without async/await
-function createTeam() {
+async function createTeam() {
   return inquirer
     .prompt([
       {
@@ -67,16 +72,7 @@ function createTeam() {
         },
       },
     ])
-    .then((answers) => {
-      team.name = answers.teamName;
-
-      return Manager.create();
-    })
-    .then((manager) => {
-      team.members = [manager];
-
-      return addTeamMember();
-    });
+    .then((answers) => answers.teamName);
 }
 
 function mkdir(dir) {
@@ -106,12 +102,20 @@ function writeOutput(html) {
   });
 }
 
-createTeam()
-  .then(() => mkdir(OUTPUT_DIR))
-  .then(() => writeOutput(render(team.members)))
-  .then(() => {
+(async () => {
+  try {
+    team.name = await createTeam();
+
+    // at least one manager is required
+    team.members.push(await Manager.create());
+
+    await addTeamMember();
+
+    await mkdir(OUTPUT_DIR);
+    await writeOutput(render(team.members));
+
     console.log('Done');
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error('Something is wrong', err);
-  });
+  };
+})();
