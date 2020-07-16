@@ -56,9 +56,8 @@ async function addTeamMember() {
 }
 
 // "promise" style with async/await
-async function createTeam() {
-  return inquirer
-    .prompt([
+function createTeam() {
+  return inquirer.prompt([
       {
         type: 'input',
         name: 'teamName',
