@@ -8,14 +8,10 @@ const util = require("util");
 
 const readTemplate = util.promisify(fs.readFile);
 const employees = [];
+let returnHtml = require("./templates/html");
 
 
-var html = {
-header : '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"><title>Team Profile</title></head><body><nav class="navbar navbar-dark bg-dark mb-5"><span class="navbar-brand mb-0 h1 w-100 text-center">Team Profile</span></nav><div class="container"><div class="row">',
-engineer : '<div class="col-6"><div class="card mx-auto mb-3" style="width: 18rem"><h5 class="card-header">  "${name}" <br /><br />Engineer</h5><ul class="list-group list-group-flush"><li class="list-group-item">ID: ${id}</li><li class="list-group-item">Email Address: ${email}</li><li class="list-group-item">GitHub: ${gitHub}</li></ul></div></div>'        
 
-
-}
 
 // core object for adding, deleting and modifying member details
 function addMember() {
@@ -96,42 +92,31 @@ async function getHtmlHeader() {
 
 function addHtml(member) {
   return new Promise(function (resolve, reject) {
-    const name = member.getName();
+
+    console.log("before");
+    console.log(member);
+    console.log("after");
+
+    const name = member.name;
     const role = member.getRole();
-    const id = member.getId();
-    const email = member.getEmail();
+    const id = member.id;
+    const email = member.email;
+ 
+
     let data = "";
     if (role === "Engineer") {
-      const gitHub = member.getGithub();
-      data = '<div class="col-6"><div class="card mx-auto mb-3" style="width: 18rem"><h5 class="card-header">  "${name}" <br /><br />Engineer</h5><ul class="list-group list-group-flush"><li class="list-group-item">ID: ${id}</li><li class="list-group-item">Email Address: ${email}</li><li class="list-group-item">GitHub: ${gitHub}</li></ul></div></div>';
+     
+      // return engineer html
+      data = returnHtml("Engineer", name, role, id, email, member.github);
 
-
-
+    
     } else if (role === "Intern") {
-      const school = member.getSchool();
-      data = `<div class="col-6">
-            <div class="card mx-auto mb-3" style="width: 18rem">
-            <h5 class="card-header">${name}<br /><br />Intern</h5>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">ID: ${id}</li>
-                <li class="list-group-item">Email Address: ${email}</li>
-                <li class="list-group-item">School: ${school}</li>
-            </ul>
-            </div>
-        </div>`;
-    } else {
-      const officePhone = member.getOfficeNumber();
-      data = `<div class="col-6">
-            <div class="card mx-auto mb-3" style="width: 18rem">
-            <h5 class="card-header">${name}<br /><br />Manager</h5>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">ID: ${id}</li>
-                <li class="list-group-item">Email Address: ${email}</li>
-                <li class="list-group-item">Office Phone: ${officePhone}</li>
-            </ul>
-            </div>
-        </div>`;
-    }
+      data = returnHtml("Intern", name, role, id, email, member.getSchool());
+     
+    } else if (role === "Manager") {
+      data = returnHtml("Manager", name, role, id, email, member.getOfficeNumber());    
+      }
+      
     console.log("adding team member");
     fs.appendFile("./output/team.html", data, function (err) {
       if (err) {
@@ -157,6 +142,8 @@ function finishHtml() {
 }
 
 function init() {
+ // console.log(returnHtml());
+
   getHtmlHeader();
   addMember();
 }
