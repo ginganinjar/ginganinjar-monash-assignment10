@@ -34,7 +34,7 @@ async function addTeamMember() {
         case 'Engineer': return Engineer.create();
         case 'Intern': return Intern.create();
         default:
-          // should not happen but it is hear to make eslint happy
+          // should not happen but it is here to make eslint happy
           return null;
       }
     });
