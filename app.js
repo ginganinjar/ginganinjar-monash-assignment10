@@ -125,4 +125,7 @@ function writeOutput(html) {
   } catch (err) {
     console.error("Something is wrong", err);
   }
-})();
+})
+
+// execute the anonymous function
+();

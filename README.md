@@ -206,7 +206,7 @@ node index.js
 ## :heavy_plus_sign: Dependancies  <a name = "dependancies"></a>
 {
  
- "inquirer": "^6.3.1"
+ "inquirer": "^6.3.1"ms
     "jest": "^24.8.0"
   }
 
