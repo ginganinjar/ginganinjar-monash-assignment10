@@ -23,11 +23,12 @@ async function addTeamMember() {
         type: 'list',
         name: 'memberType',
         message: 'Select type of team member:',
-        choices: ['Engineer', 'Intern'],
+        choices: ['Manager', 'Engineer', 'Intern'],
       },
     ])
     .then((answers) => {
       switch (answers.memberType) {
+        case 'Manager': return Manager.create();
         case 'Engineer': return Engineer.create();
         case 'Intern': return Intern.create();
         default:
@@ -68,12 +69,8 @@ function createTeam() {
     ])
     .then((answers) => {
       team.name = answers.teamName;
-
-      return Manager.create();
     })
-    .then((manager) => {
-      team.members = [manager];
-
+    .then(() => {
       return addTeamMember();
     });
 }
