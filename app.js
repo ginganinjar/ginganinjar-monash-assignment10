@@ -55,7 +55,7 @@ async function addTeamMember() {
   }
 }
 
-// "promise" style without async/await
+// "promise" style with async/await
 async function createTeam() {
   return inquirer
     .prompt([
