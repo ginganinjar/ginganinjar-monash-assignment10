@@ -7,10 +7,9 @@ const Manager = require("./lib/Manager");
 const util = require("util");
 
 const readTemplate = util.promisify(fs.readFile);
-const employees = [];
 let returnHtml = require("./templates/html");
 
-
+const employees = [];
 
 
 // core object for adding, deleting and modifying member details
@@ -93,30 +92,31 @@ async function getHtmlHeader() {
 function addHtml(member) {
   return new Promise(function (resolve, reject) {
 
-    console.log("before");
-    console.log(member);
-    console.log("after");
-
     const name = member.name;
-    const role = member.getRole();
+  
     const id = member.id;
     const email = member.email;
- 
+    school = member.school;
+    number = member.officeNumber;
+
+    const role = member.getRole(); 
 
     let data = "";
     if (role === "Engineer") {
-     
+
       // return engineer html
       data = returnHtml("Engineer", name, role, id, email, member.github);
 
-    
-    } else if (role === "Intern") {
-      data = returnHtml("Intern", name, role, id, email, member.getSchool());
-     
-    } else if (role === "Manager") {
-      data = returnHtml("Manager", name, role, id, email, member.getOfficeNumber());    
-      }
-      
+    }
+    else if (role === "Intern") {
+      // return intern html
+      data = returnHtml("Intern", name, role, id, email, school);
+
+    } else {
+      // return manager html
+      data = returnHtml("Manager", name, role, id, email, number);
+    }
+
     console.log("adding team member");
     fs.appendFile("./output/team.html", data, function (err) {
       if (err) {
@@ -127,12 +127,9 @@ function addHtml(member) {
   });
 }
 
+// function to retrive and display footer
 function finishHtml() {
-  const html = ` </div>
-                    </div>
-                    </body>
-                    </html>`;
-
+  html = returnHtml("footer");
   fs.appendFile("./output/team.html", html, function (err) {
     if (err) {
       console.log(err);
@@ -142,7 +139,7 @@ function finishHtml() {
 }
 
 function init() {
- // console.log(returnHtml());
+  // console.log(returnHtml());
 
   getHtmlHeader();
   addMember();

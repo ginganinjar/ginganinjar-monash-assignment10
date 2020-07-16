@@ -1,12 +1,3 @@
-        
-        // function required to improve and deliver quality HTML variables.
-       
-        // var html = {
-        //     header : '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="ie=edge"><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"><title>Team Profile</title></head><body><nav class="navbar navbar-dark bg-dark mb-5"><span class="navbar-brand mb-0 h1 w-100 text-center">Team Profile</span></nav><div class="container"><div class="row">',
-        //     engineer : '<div class="col-6"><div class="card mx-auto mb-3" style="width: 18rem"><h5 class="card-header">  "${name}" <br /><br />Engineer</h5><ul class="list-group list-group-flush"><li class="list-group-item">ID: ${id}</li><li class="list-group-item">Email Address: ${email}</li><li class="list-group-item">GitHub: ${gitHub}</li></ul></div></div>'        
-            
-            
-  
       
 
         function returnHtml(typeOfmember, name, role, id, email, github) {
@@ -15,30 +6,32 @@
    
          if (typeOfmember == "Engineer") {
              returnThis = `<div class="col-6"><div class="card mx-auto mb-3" style="width: 18rem"><h5 class="card-header"> ${name} <br /><br />Engineer</h5><ul class="list-group list-group-flush"><li class="list-group-item">ID: ${id}</li><li class="list-group-item">Email Address: ${email}</li><li class="list-group-item">GitHub: ${github}</li></ul></div></div>`;    
-            console.log(returnThis);
+          
          }
          
          if (typeOfmember == "Intern") {
-            returnThis = `<div class="col-6">
-            <div class="card mx-auto mb-3" style="width: 18rem">
-            <h5 class="card-header">${name}<br /><br />Intern</h5>
+            returnThis = `<div class="col-6"><div class="card mx-auto mb-3" style="width: 18rem"><h5 class="card-header">${name}<br /><br />Intern</h5><ul class="list-group list-group-flush"><li class="list-group-item">ID: ${id}</li><li class="list-group-item">Email Address: ${email}</li><li class="list-group-item">School: ${school}</li></ul></div></div>`;    
+         }
+
+
+        if (typeOfmember == "Manager") {
+
+            console.log("in box");
+
+            returnThis = `<div class="col-6"><div class="card mx-auto mb-3" style="width: 18rem"><h5 class="card-header">${name}<br /><br />Manager</h5>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item">ID: ${id}</li>
-                <li class="list-group-item">Email Address: ${email}</li>
-                <li class="list-group-item">School: ${school}</li>
-            </ul>
-            </div>
-        </div>`;    
-        
-
-            if (typeOfmember == "") {
-
-
-                
+            <li class="list-group-item">ID: ${id}</li><li class="list-group-item">Email Address: ${email}</li><li class="list-group-item">Contact Number: ${number}</li></ul>
+            </div></div>`;    
+                      
             }
 
-           console.log(returnThis);
-        }
+            if (typeOfmember == "footer") {
+                returnThis = ` </div></div></body></html>`;
+            }
+
+            console.log(returnThis);
+
+        
         
 
 
