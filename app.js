@@ -121,7 +121,7 @@ function writeOutput(html) {
     // render file and save results
     await writeOutput(render(team.members));
 
-    console.log("Finished writig file : " + outputPath);
+    console.log("Finished writing file : " + outputPath);
   } catch (err) {
     console.error("Something is wrong", err);
   }
