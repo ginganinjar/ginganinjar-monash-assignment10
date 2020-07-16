@@ -69,8 +69,12 @@ function createTeam() {
     ])
     .then((answers) => {
       team.name = answers.teamName;
+
+      return Manager.create();
     })
-    .then(() => {
+    .then((manager) => {
+      team.members = [manager];
+
       return addTeamMember();
     });
 }
